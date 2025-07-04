@@ -130,13 +130,14 @@ def parse_bool(name: str, raw_value: str) -> bool:
 
 
 def parse_enum[T: Enum](name: str, raw_value: str, *, enum: type[T]) -> T:
-    try:
-        return enum[raw_value]
-    except KeyError as error:
-        valid_values = [e.name for e in enum]
-        raise ValueError(
-            f"Environment variable '{name}' must be one of {valid_values}, got '{raw_value}'."
-        ) from error
+    for member in enum:
+        if member.name.lower() == raw_value.strip().lower():
+            return member
+
+    valid_values = [e.name.lower() for e in enum]
+    raise ValueError(
+        f"Environment variable '{name}' must be one of {valid_values}, got '{raw_value}'."
+    )
 
 
 @final
@@ -181,4 +182,4 @@ class Fields:
     """
 
     enum = EnvField(parse_enum)
-    """Enum field parser that matches by member name."""
+    """Enum field parser that matches by member name (case-insensitive)."""

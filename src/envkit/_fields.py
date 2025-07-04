@@ -125,7 +125,7 @@ def parse_bool(name: str, raw_value: str) -> bool:
             return False
         case _:
             raise ValueError(
-                f"Environment variable '{name}' must be a boolean (true/false, yes/no, 1/0, on/off), got '{raw_value}'."
+                f"Environment variable '{name}' must be a boolean, got '{raw_value}'."
             )
 
 

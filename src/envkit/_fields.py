@@ -181,21 +181,6 @@ class Fields:
         int: Parser for integer values with range validation
         bool: Parser for boolean values (supports multiple formats)
         enum: Parser for enum values by member name
-
-    Example:
-        ```python
-        # Required string with minimum length
-        api_key = Fields.str("API_KEY", min_length=32)
-
-        # Optional integer with default and range
-        port = Fields.int("PORT", default=8080, min_value=1, max_value=65535)
-
-        # Boolean with default
-        debug = Fields.bool("DEBUG", default=False)
-
-        # Enum parsing
-        log_level = Fields.enum("LOG_LEVEL", enum=LogLevel, default=LogLevel.INFO)
-        ```
     """
 
     str = EnvField(parse_str)

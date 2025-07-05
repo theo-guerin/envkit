@@ -196,19 +196,88 @@ class Fields:
     """
 
     str = EnvField(parse_str)
-    """String field parser with optional length validation."""
+    """String field parser with optional length validation.
+
+    Args:
+        name (str): Environment variable name.
+        default (str | None, optional): Default value if the variable is unset.
+        min_length (int, optional): Minimum allowed length of the string.
+        max_length (int, optional): Maximum allowed length of the string.
+
+    Returns:
+        str | None: Parsed and validated string, or the `default` value if unset.
+
+    Raises:
+        ValueError: If the variable is required but not set, or if length constraints fail.
+    """
 
     literal = EnvField(parse_literal)
-    """Literal field parser that matches against a set of allowed values."""
+    """Literal field parser that matches against a set of allowed values.
+
+    Args:
+        name (str): Environment variable name.
+        default (T | None, optional): Default value if the variable is unset.
+        choices (tuple[T, ...]): Allowed literal values to match against.
+
+    Returns:
+        T | None: Parsed literal value, or the `default` if unset.
+
+    Raises:
+        ValueError: If the variable is required but not set, or if `raw_value` is not in `choices`.
+    """
 
     int = EnvField(parse_int)
-    """Integer field parser with optional range validation."""
+    """Integer field parser with optional range validation.
+
+    Args:
+        name (str): Environment variable name.
+        default (int | None, optional): Default value if the variable is unset.
+        min_value (int, optional): Minimum allowed integer value.
+        max_value (int, optional): Maximum allowed integer value.
+
+    Returns:
+        int | None: Parsed integer, or the `default` if unset.
+
+    Raises:
+        ValueError:
+            - If the variable is required but not set.
+            - If parsing to `int` fails.
+            - If the parsed value is outside the specified range.
+    """
 
     bool = EnvField(parse_bool)
-    """Boolean field parser supporting multiple boolean formats.
+    """Boolean field parser supporting multiple formats.
 
-    Accepts: true/false, 1/0, yes/no, on/off
+    Accepts (case-insensitive): `true`/`false`, `1`/`0`, `yes`/`no`, `on`/`off`.
+
+    Args:
+        name (str): Environment variable name.
+        default (bool | None, optional): Default value if the variable is unset.
+
+    Returns:
+        bool | None: Parsed boolean, or the `default` if unset.
+
+    Raises:
+        ValueError:
+            - If the variable is required but not set.
+            - If `raw_value` is not a recognizable boolean.
     """
 
     enum = EnvField(parse_enum)
-    """Enum field parser that matches by member name (case-insensitive)."""
+    """Enum field parser that matches by member name.
+
+    Args:
+        name (str): Environment variable name.
+        default (T | None, optional): Default value if the variable is unset.
+        enum (type[T]): The `Enum` class to parse against.
+        case_sensitive (bool, optional): Whether member-name matching is case-sensitive.
+            Defaults to `False` (case-insensitive).
+
+    Returns:
+        T | None: Parsed enum member, or the `default` if unset.
+
+    Raises:
+        ValueError:
+            - If the variable is required but not set.
+            - If `raw_value` does not correspond to any enum member.
+    """

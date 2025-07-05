@@ -1,5 +1,8 @@
 from functools import reduce
-from typing import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Callable
 
 
 def pipeline[T](*funcs: Callable[[T], T]) -> Callable[[T], T]:

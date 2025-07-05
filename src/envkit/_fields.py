@@ -3,10 +3,12 @@ from __future__ import annotations
 from os import getenv
 from typing import TYPE_CHECKING, Protocol, TypedDict, final, overload
 
+from envkit._utils import pipeline
+
 if TYPE_CHECKING:
     from enum import Enum
     from types import EllipsisType
-    from typing import Unpack
+    from typing import Callable, Unpack
 
 type Unset = EllipsisType
 
@@ -129,14 +131,28 @@ def parse_bool(name: str, raw_value: str) -> bool:
             )
 
 
-def parse_enum[T: Enum](name: str, raw_value: str, *, enum: type[T]) -> T:
-    for member in enum:
-        if member.name.lower() == raw_value.strip().lower():
-            return member
+def parse_enum[T: Enum](
+    name: str, raw_value: str, *, enum: type[T], case_sensitive: bool = False
+) -> T:
+    raw_value_transforms: list[Callable[[str], str]] = [str.strip]
+    if not case_sensitive:
+        raw_value_transforms.append(str.lower)
+    normalize_raw_value = pipeline(*raw_value_transforms)
 
-    valid_values = [e.name.lower() for e in enum]
+    enum_member_transforms: list[Callable[[str], str]] = []
+    if not case_sensitive:
+        enum_member_transforms.append(str.lower)
+    normalize_enum_member = pipeline(*enum_member_transforms)
+
+    lookup = {normalize_enum_member(member.name): member for member in enum}
+
+    key = normalize_raw_value(raw_value)
+    if member := lookup.get(key):
+        return member
+
+    valid = ", ".join(e.name.lower() for e in enum)
     raise ValueError(
-        f"Environment variable '{name}' must be one of {valid_values}, got '{raw_value}'."
+        f"Environment variable {name!r} must be one of [{valid}], got {raw_value!r}"
     )
 
 

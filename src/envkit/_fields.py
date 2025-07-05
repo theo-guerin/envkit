@@ -8,7 +8,7 @@ from envkit._utils import pipeline
 if TYPE_CHECKING:
     from enum import Enum
     from types import EllipsisType
-    from typing import Callable, Unpack
+    from typing import Callable, LiteralString, Unpack
 
 type Unset = EllipsisType
 
@@ -86,6 +86,16 @@ def parse_str(name: str, raw_value: str, **constraints: Unpack[StrConstraints]) 
     if max_length is not None and len(raw_value) > max_length:
         raise ValueError(
             f"Environment variable '{name}' is longer than the maximum length {max_length}."
+        )
+    return raw_value
+
+
+def parse_literal[T: LiteralString](
+    name: str, raw_value: str, *, choices: tuple[T, ...]
+) -> T:
+    if raw_value not in choices:
+        raise ValueError(
+            f"Environment variable '{name}' must be one of {choices}, got '{raw_value}'."
         )
     return raw_value
 
@@ -187,6 +197,9 @@ class Fields:
 
     str = EnvField(parse_str)
     """String field parser with optional length validation."""
+
+    literal = EnvField(parse_literal)
+    """Literal field parser that matches against a set of allowed values."""
 
     int = EnvField(parse_int)
     """Integer field parser with optional range validation."""

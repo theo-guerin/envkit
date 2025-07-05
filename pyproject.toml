@@ -1,6 +1,6 @@
 [project]
 name = "envkit"
-version = "0.2.0"
+version = "0.3.0"
 description = "A lightweight package for parsing environment variables."
 authors = [{ name = "Theo Guerin", email = "contact@theo-guerin.dev" }]
 readme = "README.md"

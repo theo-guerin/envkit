@@ -10,7 +10,6 @@ Does not work with [mypy](https://github.com/python/mypy) yet, but it does work 
 pip install envkit
 ```
 
-
 ## Usage
 
 ```python

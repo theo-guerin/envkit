@@ -65,7 +65,9 @@ class EnvField[T, **P]:
         raw_value = getenv(name)
         if raw_value is None:
             if default is ...:
-                raise ValueError(f"Environment variable '{name}' is not set.")
+                raise NotSetError(
+                    f"Environment variable '{name}' is required but not set."
+                )
             return default
 
         return self.factory(name, raw_value, *args, **kwargs)
@@ -175,6 +177,7 @@ class Fields:
 
     Attributes:
         str: Parser for string values with length validation
+        literal: Parser for literal values matching a fixed set
         int: Parser for integer values with range validation
         bool: Parser for boolean values (supports multiple formats)
         enum: Parser for enum values by member name

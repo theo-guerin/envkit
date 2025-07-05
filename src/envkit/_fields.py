@@ -4,6 +4,7 @@ from os import getenv
 from typing import TYPE_CHECKING, Protocol, TypedDict, final, overload
 
 from envkit._utils import pipeline
+from envkit.error import MissingEnvVarError, ValidationError
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -60,12 +61,12 @@ class EnvField[T, **P]:
             The parsed and validated value, or the default if variable is unset
 
         Raises:
-            ValueError: If the variable is required but not set, or if parsing/validation fails
+            MissingEnvVarError: If required but not set.
         """
         raw_value = getenv(name)
         if raw_value is None:
             if default is ...:
-                raise NotSetError(
+                raise MissingEnvVarError(
                     f"Environment variable '{name}' is required but not set."
                 )
             return default
@@ -81,12 +82,12 @@ class StrConstraints(TypedDict, total=False):
 def parse_str(name: str, raw_value: str, **constraints: Unpack[StrConstraints]) -> str:
     min_length = constraints.get("min_length")
     if min_length is not None and len(raw_value) < min_length:
-        raise ValueError(
+        raise ValidationError(
             f"Environment variable '{name}' is shorter than the minimum length {min_length}."
         )
     max_length = constraints.get("max_length")
     if max_length is not None and len(raw_value) > max_length:
-        raise ValueError(
+        raise ValidationError(
             f"Environment variable '{name}' is longer than the maximum length {max_length}."
         )
     return raw_value
@@ -96,7 +97,7 @@ def parse_literal[T: LiteralString](
     name: str, raw_value: str, *, choices: tuple[T, ...]
 ) -> T:
     if raw_value not in choices:
-        raise ValueError(
+        raise ValidationError(
             f"Environment variable '{name}' must be one of {choices}, got '{raw_value}'."
         )
     return raw_value
@@ -111,21 +112,21 @@ def parse_int(name: str, raw_value: str, **constraints: Unpack[IntConstraints]) 
     min_val = constraints.get("min_value")
     max_val = constraints.get("max_value")
     if min_val is not None and max_val is not None and min_val > max_val:
-        raise ValueError("min_value cannot be greater than max_value")
+        raise ValidationError("min_value cannot be greater than max_value")
 
     try:
         value = int(raw_value.strip())
-    except ValueError as error:
-        raise ValueError(
+    except ValidationError as error:
+        raise ValidationError(
             f"Environment variable '{name}' must be an integer, got '{raw_value}'."
         ) from error
 
     if min_val is not None and value < min_val:
-        raise ValueError(
+        raise ValidationError(
             f"Environment variable '{name}' is less than the minimum value {min_val}."
         )
     if max_val is not None and value > max_val:
-        raise ValueError(
+        raise ValidationError(
             f"Environment variable '{name}' is greater than the maximum value {max_val}."
         )
     return value
@@ -138,7 +139,7 @@ def parse_bool(name: str, raw_value: str) -> bool:
         case "false" | "0" | "no" | "off":
             return False
         case _:
-            raise ValueError(
+            raise ValidationError(
                 f"Environment variable '{name}' must be a boolean, got '{raw_value}'."
             )
 
@@ -163,7 +164,7 @@ def parse_enum[T: Enum](
         return member
 
     valid = ", ".join(e.name.lower() for e in enum)
-    raise ValueError(
+    raise ValidationError(
         f"Environment variable {name!r} must be one of [{valid}], got {raw_value!r}"
     )
 
@@ -196,7 +197,7 @@ class Fields:
         str | None: Parsed and validated string, or the `default` value if unset.
 
     Raises:
-        ValueError: If the variable is required but not set, or if length constraints fail.
+        MissingEnvVarError: If required but not set.
     """
 
     literal = EnvField(parse_literal)
@@ -211,7 +212,7 @@ class Fields:
         T | None: Parsed literal value, or the `default` if unset.
 
     Raises:
-        ValueError: If the variable is required but not set, or if `raw_value` is not in `choices`.
+        MissingEnvVarError: If required but not set.
     """
 
     int = EnvField(parse_int)
@@ -227,8 +228,8 @@ class Fields:
         int | None: Parsed integer, or the `default` if unset.
 
     Raises:
-        ValueError:
-            - If the variable is required but not set.
+        MissingEnvVarError: If required but not set.
+        ValidationError:
             - If parsing to `int` fails.
             - If the parsed value is outside the specified range.
     """
@@ -246,9 +247,8 @@ class Fields:
         bool | None: Parsed boolean, or the `default` if unset.
 
     Raises:
-        ValueError:
-            - If the variable is required but not set.
-            - If `raw_value` is not a recognizable boolean.
+        MissingEnvVarError: If required but not set.
+        ValidationError: If the value is not a recognizable boolean.
     """
 
     enum = EnvField(parse_enum)
@@ -265,7 +265,6 @@ class Fields:
         T | None: Parsed enum member, or the `default` if unset.
 
     Raises:
-        ValueError:
-            - If the variable is required but not set.
-            - If `raw_value` does not correspond to any enum member.
+        MissingEnvVarError: If required but not set.
+        ValidationError: If the value does not match any enum member.
     """

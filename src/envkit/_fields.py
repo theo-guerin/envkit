@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from os import getenv
-from typing import TYPE_CHECKING, Protocol, TypedDict, final, overload
+from typing import TYPE_CHECKING, Protocol, final, overload
 
 from envkit._utils import pipeline
 from envkit.error import MissingEnvVarError, ValidationError
@@ -9,7 +9,7 @@ from envkit.error import MissingEnvVarError, ValidationError
 if TYPE_CHECKING:
     from enum import Enum
     from types import EllipsisType
-    from typing import Callable, LiteralString, Unpack
+    from typing import Callable, LiteralString
 
 type Unset = EllipsisType
 
@@ -62,33 +62,33 @@ class EnvField[T, **P]:
 
         Raises:
             MissingEnvVarError: If required but not set.
+            ValidationError: If the value does not meet validation constraints.
         """
         raw_value = getenv(name)
         if raw_value is None:
             if default is ...:
                 raise MissingEnvVarError(
-                    f"Environment variable '{name}' is required but not set."
+                    f"Environment variable {name!r} is required but not set."
                 )
             return default
 
         return self.factory(name, raw_value, *args, **kwargs)
 
 
-class StrConstraints(TypedDict, total=False):
-    min_length: int
-    max_length: int
-
-
-def parse_str(name: str, raw_value: str, **constraints: Unpack[StrConstraints]) -> str:
-    min_length = constraints.get("min_length")
+def parse_str(
+    name: str,
+    raw_value: str,
+    *,
+    min_length: int | None = None,
+    max_length: int | None = None,
+) -> str:
     if min_length is not None and len(raw_value) < min_length:
         raise ValidationError(
-            f"Environment variable '{name}' is shorter than the minimum length {min_length}."
+            f"Environment variable {name!r} is shorter than the minimum length {min_length}."
         )
-    max_length = constraints.get("max_length")
     if max_length is not None and len(raw_value) > max_length:
         raise ValidationError(
-            f"Environment variable '{name}' is longer than the maximum length {max_length}."
+            f"Environment variable {name!r} is longer than the maximum length {max_length}."
         )
     return raw_value
 
@@ -98,36 +98,35 @@ def parse_literal[T: LiteralString](
 ) -> T:
     if raw_value not in choices:
         raise ValidationError(
-            f"Environment variable '{name}' must be one of {choices}, got '{raw_value}'."
+            f"Environment variable {name!r} must be one of {choices!r}, got {raw_value!r}."
         )
     return raw_value
 
 
-class IntConstraints(TypedDict, total=False):
-    min_value: int
-    max_value: int
-
-
-def parse_int(name: str, raw_value: str, **constraints: Unpack[IntConstraints]) -> int:
-    min_val = constraints.get("min_value")
-    max_val = constraints.get("max_value")
-    if min_val is not None and max_val is not None and min_val > max_val:
+def parse_int(
+    name: str,
+    raw_value: str,
+    *,
+    min_value: int | None = None,
+    max_value: int | None = None,
+) -> int:
+    if min_value is not None and max_value is not None and min_value > max_value:
         raise ValidationError("min_value cannot be greater than max_value")
 
     try:
         value = int(raw_value.strip())
     except ValidationError as error:
         raise ValidationError(
-            f"Environment variable '{name}' must be an integer, got '{raw_value}'."
+            f"Environment variable {name!r} must be an integer, got {raw_value!r}."
         ) from error
 
-    if min_val is not None and value < min_val:
+    if min_value is not None and value < min_value:
         raise ValidationError(
-            f"Environment variable '{name}' is less than the minimum value {min_val}."
+            f"Environment variable {name!r} is less than the minimum value {min_value}."
         )
-    if max_val is not None and value > max_val:
+    if max_value is not None and value > max_value:
         raise ValidationError(
-            f"Environment variable '{name}' is greater than the maximum value {max_val}."
+            f"Environment variable {name!r} is greater than the maximum value {max_value}."
         )
     return value
 
@@ -140,7 +139,7 @@ def parse_bool(name: str, raw_value: str) -> bool:
             return False
         case _:
             raise ValidationError(
-                f"Environment variable '{name}' must be a boolean, got '{raw_value}'."
+                f"Environment variable {name!r} must be a boolean, got {raw_value!r}."
             )
 
 
@@ -163,9 +162,9 @@ def parse_enum[T: Enum](
     if member := lookup.get(key):
         return member
 
-    valid = ", ".join(e.name.lower() for e in enum)
+    valid = [member.name for member in enum]
     raise ValidationError(
-        f"Environment variable {name!r} must be one of [{valid}], got {raw_value!r}"
+        f"Environment variable {name!r} must be one of {valid!r}, got {raw_value!r}"
     )
 
 

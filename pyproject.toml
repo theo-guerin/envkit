@@ -3,6 +3,7 @@ name = "envkit"
 version = "0.4.0"
 description = "A lightweight package for parsing environment variables."
 authors = [{ name = "Theo Guerin", email = "contact@theo-guerin.dev" }]
+license = { text = "MIT" }
 readme = "README.md"
 
 requires-python = ">=3.12"

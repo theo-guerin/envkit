@@ -1,6 +1,6 @@
 [project]
 name = "envkit"
-version = "0.3.2"
+version = "0.4.0"
 description = "A lightweight package for parsing environment variables."
 authors = [{ name = "Theo Guerin", email = "contact@theo-guerin.dev" }]
 readme = "README.md"
@@ -8,10 +8,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.12.2",
-    "basedpyright>=1.29.5",
-]
+dev = ["ruff>=0.12.2", "basedpyright>=1.29.5", "pytest>=9.0.1"]
 
 [build-system]
 requires = ["uv_build>=0.9.11,<0.10.0"]

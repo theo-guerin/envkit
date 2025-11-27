@@ -1,5 +1,5 @@
-from envkit._fields import Fields
+from envkit._env import Env
 
 __all__ = [
-    "Fields",
+    "Env",
 ]

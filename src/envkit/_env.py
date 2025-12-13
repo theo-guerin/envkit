@@ -14,7 +14,7 @@ def _get[T](
     raw = getenv(name)
     if raw is None:
         if required:
-            raise KeyError(f"Environment variable {name!r} is required but not set.")
+            raise KeyError(f"Environment variable {name!r} is required but not set")
         return default
 
     return converter(raw)
@@ -73,16 +73,16 @@ class Env:
             and max_length is not None
             and min_length > max_length
         ):
-            raise ValueError("min_length cannot be greater than max_length.")
+            raise ValueError("min_length cannot be greater than max_length")
 
         def converter(value: str) -> str:
             if strip:
                 value = value.strip()
 
             if min_length is not None and len(value) < min_length:
-                raise ValueError(f"{name!r} must be at least {min_length} chars.")
+                raise ValueError(f"{name!r} must be at least {min_length} chars")
             if max_length is not None and len(value) > max_length:
-                raise ValueError(f"{name!r} must be at most {max_length} chars.")
+                raise ValueError(f"{name!r} must be at most {max_length} chars")
             return value
 
         return _get(name, required, default, converter)
@@ -130,18 +130,18 @@ class Env:
         max_value: int | None = None,
     ) -> int | None:
         if min_value is not None and max_value is not None and min_value > max_value:
-            raise ValueError("min_value cannot be greater than max_value.")
+            raise ValueError("min_value cannot be greater than max_value")
 
         def converter(raw: str) -> int:
             try:
                 value = int(raw.strip())
             except ValueError as e:
-                raise ValueError(f"{name!r} must be an integer.") from e
+                raise ValueError(f"{name!r} must be an integer") from e
 
             if min_value is not None and value < min_value:
-                raise ValueError(f"{name!r} must be >= {min_value}.")
+                raise ValueError(f"{name!r} must be >= {min_value}")
             if max_value is not None and value > max_value:
-                raise ValueError(f"{name!r} must be <= {max_value}.")
+                raise ValueError(f"{name!r} must be <= {max_value}")
             return value
 
         return _get(name, required, default, converter)
@@ -187,7 +187,7 @@ class Env:
                 case "false" | "0" | "no" | "off":
                     return False
                 case _:
-                    raise ValueError(f"{name!r} must be a boolean.")
+                    raise ValueError(f"{name!r} must be a boolean")
 
         return _get(name, required, default, converter)
 
@@ -241,13 +241,13 @@ class Env:
                     key = insensitive_keys[key.casefold()]
                 except KeyError:
                     valid = list(enum.__members__.keys())
-                    raise ValueError(f"{name!r} must be one of {valid!r}.")
+                    raise ValueError(f"{name!r} must be one of {valid!r}")
 
             try:
                 return enum[key]
             except KeyError:
                 valid = list(enum.__members__.keys())
-                raise ValueError(f"{name!r} must be one of {valid!r}.")
+                raise ValueError(f"{name!r} must be one of {valid!r}")
 
         return _get(name, required, default, converter)
 
@@ -297,7 +297,7 @@ class Env:
             if strip:
                 value = value.strip()
             if value not in choices:
-                raise ValueError(f"{name!r} must be one of {choices!r}.")
+                raise ValueError(f"{name!r} must be one of {choices!r}")
             return value
 
         return _get(name, required, default, converter)

@@ -1,6 +1,9 @@
 # EnvKit
 
-*A lightweight package for parsing environment variables.*
+![PyPI - Version](https://img.shields.io/pypi/v/:packageName)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/envkit)
+
+A lightweight package for parsing environment variables.
 
 ## Installation
 

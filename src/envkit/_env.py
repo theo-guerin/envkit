@@ -68,6 +68,13 @@ class Env:
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None:
+        if (
+            min_length is not None
+            and max_length is not None
+            and min_length > max_length
+        ):
+            raise ValueError("min_length cannot be greater than max_length.")
+
         def converter(value: str) -> str:
             if strip:
                 value = value.strip()
@@ -122,6 +129,9 @@ class Env:
         min_value: int | None = None,
         max_value: int | None = None,
     ) -> int | None:
+        if min_value is not None and max_value is not None and min_value > max_value:
+            raise ValueError("min_value cannot be greater than max_value.")
+
         def converter(raw: str) -> int:
             try:
                 value = int(raw.strip())

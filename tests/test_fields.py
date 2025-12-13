@@ -53,6 +53,11 @@ def test_str_strip(monkeypatch: MonkeyPatch) -> None:
     assert Env.str("TEST_FOUND", strip=True) == "value"
 
 
+def test_str_invalid_length(monkeypatch: MonkeyPatch) -> None:
+    with pytest.raises(ValueError):
+        Env.str("TEST_INVALID_LENGTH", min_length=5, max_length=3)
+
+
 # int
 
 
@@ -104,6 +109,11 @@ def test_int_missing(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.delenv("TEST_MISSING", raising=False)
     with pytest.raises(KeyError):
         Env.int("TEST_MISSING")
+
+
+def test_int_invalid_range(monkeypatch: MonkeyPatch) -> None:
+    with pytest.raises(ValueError):
+        Env.int("TEST_INVALID_RANGE", min_value=5, max_value=3)
 
 
 # bool

@@ -1,7 +1,7 @@
 # EnvKit
 
-![PyPI - Version](https://img.shields.io/pypi/v/envkit)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/envkit)
+[![PyPI - Version](https://img.shields.io/pypi/v/envkit)](https://pypi.org/project/envkit/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/envkit)](https://pypi.org/project/envkit/)
 
 A lightweight package for parsing environment variables.
 

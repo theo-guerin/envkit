@@ -47,6 +47,12 @@ def test_str_missing(monkeypatch: MonkeyPatch) -> None:
         Env.str("TEST_MISSING")
 
 
+def test_str_strip(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_FOUND", " value ")
+    assert Env.str("TEST_FOUND", strip=False) == " value "
+    assert Env.str("TEST_FOUND", strip=True) == "value"
+
+
 # int
 
 
@@ -231,3 +237,10 @@ def test_literal_missing(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.delenv("TEST_MISSING", raising=False)
     with pytest.raises(KeyError):
         Env.literal("TEST_MISSING", CHOICES)
+
+
+def test_literal_strip(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_FOUND", " 1 ")
+    with pytest.raises(ValueError):
+        Env.literal("TEST_FOUND", CHOICES, strip=False)
+    assert Env.literal("TEST_FOUND", CHOICES, strip=True) == "1"

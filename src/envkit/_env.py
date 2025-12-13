@@ -29,6 +29,7 @@ class Env:
         *,
         required: Literal[False],
         default: str,
+        strip: bool = False,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -40,6 +41,7 @@ class Env:
         *,
         required: Literal[False],
         default: None = None,
+        strip: bool = False,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None: ...
@@ -51,6 +53,7 @@ class Env:
         *,
         required: Literal[True] = True,
         default: None = None,
+        strip: bool = False,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -61,10 +64,14 @@ class Env:
         *,
         required: bool = True,
         default: str | None = None,
+        strip: bool = False,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None:
         def converter(value: str) -> str:
+            if strip:
+                value = value.strip()
+
             if min_length is not None and len(value) < min_length:
                 raise ValueError(f"{name!r} must be at least {min_length} chars.")
             if max_length is not None and len(value) > max_length:
@@ -242,6 +249,7 @@ class Env:
         *,
         required: Literal[False],
         default: L,
+        strip: bool = True,
     ) -> L: ...
 
     @overload
@@ -252,6 +260,7 @@ class Env:
         *,
         required: Literal[False],
         default: None = None,
+        strip: bool = True,
     ) -> L | None: ...
 
     @overload
@@ -262,6 +271,7 @@ class Env:
         *,
         required: Literal[True] = True,
         default: None = None,
+        strip: bool = True,
     ) -> L: ...
 
     @staticmethod
@@ -271,8 +281,11 @@ class Env:
         *,
         required: bool = True,
         default: L | None = None,
+        strip: bool = True,
     ) -> L | None:
         def converter(value: str) -> L:
+            if strip:
+                value = value.strip()
             if value not in choices:
                 raise ValueError(f"{name!r} must be one of {choices!r}.")
             return value

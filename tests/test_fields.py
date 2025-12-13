@@ -169,6 +169,11 @@ class Color(Enum):
     BLUE = "blue"
 
 
+class ColorConflict(Enum):
+    RED = "red"
+    red = "Red"
+
+
 def test_enum_found(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("TEST_FOUND", "RED")
     assert Env.enum("TEST_FOUND", Color) == Color.RED
@@ -213,6 +218,12 @@ def test_enum_missing(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.delenv("TEST_MISSING", raising=False)
     with pytest.raises(KeyError):
         Env.enum("TEST_MISSING", Color)
+
+
+def test_enum_conflict_case_insensitive(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_CONFLICT", "red")
+    with pytest.raises(ValueError):
+        Env.enum("TEST_CONFLICT", ColorConflict, case_sensitive=False)
 
 
 # literal

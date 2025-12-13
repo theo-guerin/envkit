@@ -237,6 +237,11 @@ class Env:
             key = key.strip()
             if not case_sensitive:
                 insensitive_keys = {k.casefold(): k for k in enum.__members__}
+                if len(insensitive_keys) < len(enum):
+                    raise ValueError(
+                        "Enum contains conflicting keys when case-insensitivity is applied"
+                    )
+
                 try:
                     key = insensitive_keys[key.casefold()]
                 except KeyError:

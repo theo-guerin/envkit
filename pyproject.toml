@@ -1,13 +1,13 @@
 [project]
 name = "envkit"
 version = "0.5.0.post4"
-description = "A lightweight package for parsing environment variables"
+description = "A lightweight, strongly-typed environment variable parser focused on explicit configuration and predictable behavior, inspired by environs."
 authors = [{ name = "Théo Guérin", email = "contact@theo-guerin.dev" }]
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",

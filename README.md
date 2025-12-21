@@ -6,6 +6,8 @@
 
 A lightweight, strongly‑typed environment variable parser focused on explicit configuration and predictable behavior, inspired by [environs](https://github.com/sloria/environs).
 
+*This project is in an early development stage. Expect breaking changes and incomplete features.*
+
 ## Installation
 
 ```bash

@@ -25,7 +25,7 @@ wheels = [
 
 [[package]]
 name = "envkit"
-version = "0.5.0.post3"
+version = "0.5.0.post4"
 source = { editable = "." }
 
 [package.dev-dependencies]

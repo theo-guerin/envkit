@@ -68,7 +68,8 @@ check:tests:
         - uv.lock
         - "**/*.py"
   script:
-    - uv run pytest --cov --cov-report=xml:coverage.xml --junitxml=report.xml
+    - uv run pytest --cov --cov-report term --cov-report=xml:coverage.xml --junitxml=report.xml
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     when: always
     reports:

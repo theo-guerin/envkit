@@ -203,11 +203,14 @@ def test_enum_invalid(monkeypatch: MonkeyPatch) -> None:
 
 
 def test_enum_case_insensitive(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_BAD", "red")
+    monkeypatch.setenv("TEST_LOWER_CASE", "red")
+    assert Env.enum("TEST_LOWER_CASE", Color, case_sensitive=False) == Color.RED
     with pytest.raises(ValueError):
-        Env.enum("TEST_BAD", Color, case_sensitive=True)
-    monkeypatch.setenv("TEST_GOOD", "red")
-    assert Env.enum("TEST_GOOD", Color, case_sensitive=False) == Color.RED
+        Env.enum("TEST_LOWER_CASE", Color, case_sensitive=True)
+
+    monkeypatch.setenv("TEST_NOT_FOUND", "purple")
+    with pytest.raises(ValueError):
+        Env.enum("TEST_NOT_FOUND", Color, case_sensitive=False)
 
 
 def test_enum_default(monkeypatch: MonkeyPatch) -> None:

@@ -160,6 +160,65 @@ class Env:
 
     @overload
     @staticmethod
+    def float(
+        name: str,
+        *,
+        required: Literal[False],
+        default: float,
+        min_value: float | None = None,
+        max_value: float | None = None,
+    ) -> float: ...
+
+    @overload
+    @staticmethod
+    def float(
+        name: str,
+        *,
+        required: Literal[False],
+        default: None = None,
+        min_value: float | None = None,
+        max_value: float | None = None,
+    ) -> float | None: ...
+
+    @overload
+    @staticmethod
+    def float(
+        name: str,
+        *,
+        required: Literal[True] = True,
+        default: None = None,
+        min_value: float | None = None,
+        max_value: float | None = None,
+    ) -> float: ...
+
+    @staticmethod
+    def float(
+        name: str,
+        *,
+        required: bool = True,
+        default: float | None = None,
+        min_value: float | None = None,
+        max_value: float | None = None,
+    ) -> float | None:
+        if min_value is not None and max_value is not None and min_value > max_value:
+            raise ValueError("min_value cannot be greater than max_value")
+
+        def converter(raw: str) -> float:
+            try:
+                value = float(raw.strip())
+            except ValueError as e:
+                raise ValueError(f"{name!r} must be a float") from e
+
+            if min_value is not None and value < min_value:
+                raise ValueError(f"{name!r} must be >= {min_value}")
+            if max_value is not None and value > max_value:
+                raise ValueError(f"{name!r} must be <= {max_value}")
+            return value
+
+        return _get(name, required, default, converter)
+
+    @overload
+    @staticmethod
     def bool(
         name: str,
         *,

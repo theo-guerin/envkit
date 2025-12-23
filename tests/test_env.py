@@ -114,7 +114,7 @@ def test_int_too_large(monkeypatch: MonkeyPatch) -> None:
 
 
 def test_int_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_idk", raising=False)
+    monkeypatch.delenv("TEST_DEFAULT_1", raising=False)
     assert Env.int("TEST_DEFAULT_1", required=False, default=1) == 1
     monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
     assert Env.int("TEST_DEFAULT_None", required=False, default=None) is None
@@ -132,6 +132,71 @@ def test_int_missing(monkeypatch: MonkeyPatch) -> None:
 def test_int_invalid_range(monkeypatch: MonkeyPatch) -> None:
     with pytest.raises(ValueError):
         Env.int("TEST_INVALID_RANGE", min_value=5, max_value=3)
+
+
+# float
+
+
+def test_float_found(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_FOUND", "1.2")
+    assert Env.float("TEST_FOUND") == 1.2
+
+
+def test_float_strip(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_FOUND", " 1.2 ")
+    assert Env.float("TEST_FOUND") == 1.2
+
+
+def test_float_invalid(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_INVALID", "a")
+    with pytest.raises(ValueError):
+        Env.float("TEST_INVALID")
+
+
+def test_float_too_small(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_GOOD", "1.2")
+    assert Env.float("TEST_GOOD", min_value=1.1) == 1.2
+
+    monkeypatch.setenv("TEST_TOO_SMALL", "1.2")
+    with pytest.raises(ValueError):
+        Env.float("TEST_TOO_SMALL", min_value=1.3)
+
+
+def test_float_too_large(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_GOOD", "1.2")
+    assert Env.float("TEST_GOOD", max_value=1.3) == 1.2
+
+    monkeypatch.setenv("TEST_TOO_LARGE", "2")
+    with pytest.raises(ValueError):
+        Env.float("TEST_TOO_LARGE", max_value=1.1)
+
+
+def test_float_default(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.delenv("TEST_DEFAULT_1_2", raising=False)
+    assert Env.float("TEST_DEFAULT_1_2", required=False, default=1.2) == 1.2
+    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
+    assert Env.float("TEST_DEFAULT_None", required=False, default=None) is None
+
+    monkeypatch.setenv("TEST_DEFAULT_SET", "1.2")
+    assert Env.float("TEST_DEFAULT_SET", required=False, default=1.1) == 1.2
+
+
+def test_float_missing(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.delenv("TEST_MISSING", raising=False)
+    with pytest.raises(KeyError):
+        Env.float("TEST_MISSING")
+
+
+def test_float_invalid_range(monkeypatch: MonkeyPatch) -> None:
+    with pytest.raises(ValueError):
+        Env.float("TEST_INVALID_RANGE", min_value=5.2, max_value=3.1)
+
+
+def test_float_inf(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setenv("TEST_INF", "inf")
+    assert Env.float("TEST_INF") == float("inf")
+    monkeypatch.setenv("TEST_NEG_INF", "-inf")
+    assert Env.float("TEST_NEG_INF") == float("-inf")
 
 
 # bool

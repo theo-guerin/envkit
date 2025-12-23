@@ -30,6 +30,7 @@ class Env:
         required: Literal[False],
         default: str,
         strip: bool = False,
+        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -42,6 +43,7 @@ class Env:
         required: Literal[False],
         default: None = None,
         strip: bool = False,
+        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None: ...
@@ -54,6 +56,7 @@ class Env:
         required: Literal[True] = True,
         default: None = None,
         strip: bool = False,
+        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -65,6 +68,7 @@ class Env:
         required: bool = True,
         default: str | None = None,
         strip: bool = False,
+        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None:
@@ -78,6 +82,9 @@ class Env:
         def converter(value: str) -> str:
             if strip:
                 value = value.strip()
+
+            if not allow_empty and value == "":
+                raise ValueError(f"{name!r} cannot be empty")
 
             if min_length is not None and len(value) < min_length:
                 raise ValueError(f"{name!r} must be at least {min_length} chars")

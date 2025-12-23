@@ -58,7 +58,7 @@ def test_str_invalid_length(monkeypatch: MonkeyPatch) -> None:
         Env.str("TEST_INVALID_LENGTH", min_length=5, max_length=3)
 
 
-def test_str_empty(monkeypatch: MonkeyPatch) -> None:
+def test_str_allow_empty(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("TEST_EMPTY", "")
     assert Env.str("TEST_EMPTY", allow_empty=True) == ""
     with pytest.raises(ValueError):
@@ -68,6 +68,12 @@ def test_str_empty(monkeypatch: MonkeyPatch) -> None:
     assert Env.str("TEST_SPACE", allow_empty=True, strip=False) == " "
     with pytest.raises(ValueError):
         Env.str("TEST_SPACE", allow_empty=False, strip=True)
+
+    monkeypatch.setenv("TEST_INVALID", "VALUE")
+    with pytest.raises(ValueError):
+        Env.str("TEST_INVALID", allow_empty=False, min_length=0)
+    with pytest.raises(ValueError):
+        Env.str("TEST_INVALID", allow_empty=False, max_length=0)
 
 
 # int

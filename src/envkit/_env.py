@@ -79,6 +79,11 @@ class Env:
         ):
             raise ValueError("min_length cannot be greater than max_length")
 
+        if not allow_empty and (min_length is not None and min_length == 0):
+            raise ValueError("allow_empty cannot be False when min_length is 0")
+        if not allow_empty and (max_length is not None and max_length == 0):
+            raise ValueError("allow_empty cannot be False when max_length is 0")
+
         def converter(value: str) -> str:
             if strip:
                 value = value.strip()

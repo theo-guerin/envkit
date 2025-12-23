@@ -313,8 +313,3 @@ class Env:
             return value
 
         return _get(name, required, default, converter)
-
-
-__all__ = [
-    "Env",
-]

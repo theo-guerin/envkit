@@ -68,11 +68,14 @@ check:tests:
         - uv.lock
         - "**/*.py"
   script:
-    - uv run pytest --junitxml=report.xml
+    - uv run pytest --cov --cov-report=xml:coverage.xml --junitxml=report.xml
   artifacts:
     when: always
     reports:
       junit: report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
   cache:
     policy: pull
 

@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 def _get[T](
     name: str, required: bool, default: T, converter: Callable[[str], T]
 ) -> T | None:
+    """Internal helper to fetch and convert environment variables."""
+
     raw = getenv(name)
     if raw is None:
         if required:
@@ -22,6 +24,8 @@ def _get[T](
 
 @final
 class Env:
+    """A utility class for reading and validating environment variables."""
+
     @overload
     @staticmethod
     def str(
@@ -72,6 +76,10 @@ class Env:
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None:
+        """
+        Retrieve an environment variable as a string with optional validation.
+        """
+
         if (
             min_length is not None
             and max_length is not None
@@ -141,6 +149,10 @@ class Env:
         min_value: int | None = None,
         max_value: int | None = None,
     ) -> int | None:
+        """
+        Retrieve an environment variable as an integer with optional range validation.
+        """
+
         if min_value is not None and max_value is not None and min_value > max_value:
             raise ValueError("min_value cannot be greater than max_value")
 
@@ -200,6 +212,10 @@ class Env:
         min_value: float | None = None,
         max_value: float | None = None,
     ) -> float | None:
+        """
+        Retrieve an environment variable as a float with optional range validation.
+        """
+
         if min_value is not None and max_value is not None and min_value > max_value:
             raise ValueError("min_value cannot be greater than max_value")
 
@@ -256,6 +272,13 @@ class Env:
         required: bool = True,
         default: bool | None = None,
     ) -> bool | None:
+        """
+        Retrieve an environment variable as a boolean.
+
+        Accepts 'true', '1', 'yes', 'on' as True, and 'false', '0', 'no', 'off'
+        as False (case-insensitive).
+        """
+
         def converter(raw: str) -> bool:
             match raw.strip().lower():
                 case "true" | "1" | "yes" | "on":
@@ -309,6 +332,10 @@ class Env:
         default: E | None = None,
         case_sensitive: bool = True,
     ) -> E | None:
+        """
+        Retrieve an environment variable and convert it to an Enum member by name.
+        """
+
         def converter(key: str) -> E:
             key = key.strip()
             if not case_sensitive:
@@ -374,6 +401,11 @@ class Env:
         default: L | None = None,
         strip: bool = True,
     ) -> L | None:
+        """
+        Retrieve an environment variable and ensure it matches one of the provided
+        literal choices.
+        """
+
         def converter(value: str) -> L:
             if strip:
                 value = value.strip()

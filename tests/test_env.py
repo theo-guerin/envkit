@@ -1,353 +1,384 @@
-from enum import Enum
+# pyright: reportUnusedCallResult=false
+
+import math
+from enum import Enum, auto
 
 import pytest
 from pytest import MonkeyPatch
 
 from envkit import Env
 
-# str
-
-
-def test_str_found(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", "value")
-    assert Env.str("TEST_FOUND") == "value"
-
-
-def test_str_too_small(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1")
-    assert Env.str("TEST_GOOD", min_length=1) == "1"
-
-    monkeypatch.setenv("TEST_TOO_SMALL", "")
-    with pytest.raises(ValueError):
-        Env.str("TEST_TOO_SMALL", min_length=1)
-
-
-def test_str_too_large(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1")
-    assert Env.str("TEST_GOOD", max_length=1) == "1"
-
-    monkeypatch.setenv("TEST_TOO_LARGE", "12")
-    with pytest.raises(ValueError):
-        Env.str("TEST_TOO_LARGE", max_length=1)
-
-
-def test_str_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_idk", raising=False)
-    assert Env.str("TEST_DEFAULT_idk", required=False, default="idk") == "idk"
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert Env.str("TEST_DEFAULT_None", required=False, default=None) is None
-
-    monkeypatch.setenv("TEST_DEFAULT_SET", "SET")
-    assert Env.str("TEST_DEFAULT_SET", required=False, default="idk") == "SET"
-
-
-def test_str_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.str("TEST_MISSING")
-
-
-def test_str_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", " value ")
-    assert Env.str("TEST_FOUND", strip=False) == " value "
-    assert Env.str("TEST_FOUND", strip=True) == "value"
-
-
-def test_str_invalid_length(monkeypatch: MonkeyPatch) -> None:
-    with pytest.raises(ValueError):
-        Env.str("TEST_INVALID_LENGTH", min_length=5, max_length=3)
-
-
-def test_str_allow_empty(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_EMPTY", "")
-    assert Env.str("TEST_EMPTY", allow_empty=True) == ""
-    with pytest.raises(ValueError):
-        Env.str("TEST_EMPTY", allow_empty=False)
-
-    monkeypatch.setenv("TEST_SPACE", " ")
-    assert Env.str("TEST_SPACE", allow_empty=True, strip=False) == " "
-    with pytest.raises(ValueError):
-        Env.str("TEST_SPACE", allow_empty=False, strip=True)
-
-    monkeypatch.setenv("TEST_INVALID", "VALUE")
-    with pytest.raises(ValueError):
-        Env.str("TEST_INVALID", allow_empty=False, min_length=0)
-    with pytest.raises(ValueError):
-        Env.str("TEST_INVALID", allow_empty=False, max_length=0)
-
-
-# int
-
-
-def test_int_found(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", "1")
-    assert Env.int("TEST_FOUND") == 1
-
-
-def test_int_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", " 1 ")
-    assert Env.int("TEST_FOUND") == 1
-
-
-def test_int_invalid(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INVALID", "a")
-    with pytest.raises(ValueError):
-        Env.int("TEST_INVALID")
-
-
-def test_int_too_small(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1")
-    assert Env.int("TEST_GOOD", min_value=1) == 1
-
-    monkeypatch.setenv("TEST_TOO_SMALL", "0")
-    with pytest.raises(ValueError):
-        Env.int("TEST_TOO_SMALL", min_value=1)
-
-
-def test_int_too_large(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1")
-    assert Env.int("TEST_GOOD", max_value=1) == 1
-
-    monkeypatch.setenv("TEST_TOO_LARGE", "2")
-    with pytest.raises(ValueError):
-        Env.int("TEST_TOO_LARGE", max_value=1)
-
-
-def test_int_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_1", raising=False)
-    assert Env.int("TEST_DEFAULT_1", required=False, default=1) == 1
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert Env.int("TEST_DEFAULT_None", required=False, default=None) is None
-
-    monkeypatch.setenv("TEST_DEFAULT_SET", "1")
-    assert Env.int("TEST_DEFAULT_SET", required=False, default=0) == 1
-
-
-def test_int_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.int("TEST_MISSING")
-
-
-def test_int_invalid_range(monkeypatch: MonkeyPatch) -> None:
-    with pytest.raises(ValueError):
-        Env.int("TEST_INVALID_RANGE", min_value=5, max_value=3)
-
-
-# float
-
-
-def test_float_found(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", "1.2")
-    assert Env.float("TEST_FOUND") == 1.2
-
-
-def test_float_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", " 1.2 ")
-    assert Env.float("TEST_FOUND") == 1.2
-
-
-def test_float_invalid(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INVALID", "a")
-    with pytest.raises(ValueError):
-        Env.float("TEST_INVALID")
-
-
-def test_float_too_small(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1.2")
-    assert Env.float("TEST_GOOD", min_value=1.1) == 1.2
-
-    monkeypatch.setenv("TEST_TOO_SMALL", "1.2")
-    with pytest.raises(ValueError):
-        Env.float("TEST_TOO_SMALL", min_value=1.3)
-
-
-def test_float_too_large(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_GOOD", "1.2")
-    assert Env.float("TEST_GOOD", max_value=1.3) == 1.2
-
-    monkeypatch.setenv("TEST_TOO_LARGE", "2")
-    with pytest.raises(ValueError):
-        Env.float("TEST_TOO_LARGE", max_value=1.1)
-
-
-def test_float_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_1_2", raising=False)
-    assert Env.float("TEST_DEFAULT_1_2", required=False, default=1.2) == 1.2
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert Env.float("TEST_DEFAULT_None", required=False, default=None) is None
-
-    monkeypatch.setenv("TEST_DEFAULT_SET", "1.2")
-    assert Env.float("TEST_DEFAULT_SET", required=False, default=1.1) == 1.2
-
-
-def test_float_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.float("TEST_MISSING")
-
-
-def test_float_invalid_range(monkeypatch: MonkeyPatch) -> None:
-    with pytest.raises(ValueError):
-        Env.float("TEST_INVALID_RANGE", min_value=5.2, max_value=3.1)
-
-
-def test_float_inf(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INF", "inf")
-    assert Env.float("TEST_INF") == float("inf")
-    monkeypatch.setenv("TEST_NEG_INF", "-inf")
-    assert Env.float("TEST_NEG_INF") == float("-inf")
-
-
-# bool
-
-
-def test_bool_values(monkeypatch: MonkeyPatch) -> None:
-    for key in ["true", "1", "yes", "on"]:
-        monkeypatch.setenv(f"TEST_{key}", key)
-        assert Env.bool(f"TEST_{key}") is True
-    for key in ["false", "0", "no", "off"]:
-        monkeypatch.setenv(f"TEST_{key}", key)
-        assert Env.bool(f"TEST_{key}") is False
-
-
-def test_bool_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_TRUE", " true ")
-    assert Env.bool("TEST_TRUE") is True
-
-
-def test_bool_invalid(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INVALID", "idk")
-    with pytest.raises(ValueError):
-        Env.bool("TEST_INVALID")
-
-
-def test_bool_uppercase(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_TRUE", "TRUE")
-    assert Env.bool("TEST_TRUE") is True
-
-
-def test_bool_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_True", raising=False)
-    assert Env.bool("TEST_DEFAULT_True", required=False, default=True) is True
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert Env.bool("TEST_DEFAULT_None", required=False, default=None) is None
-
-    monkeypatch.setenv("TEST_DEFAULT_SET", "false")
-    assert Env.bool("TEST_DEFAULT_SET", required=False, default=True) is False
-
-
-def test_bool_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.bool("TEST_MISSING")
-
-
-# enum
-
-
-class Color(Enum):
-    RED = "red"
-    GREEN = "green"
-    BLUE = "blue"
-
-
-class ColorConflict(Enum):
-    RED = "red"
-    red = "Red"
-
-
-def test_enum_found(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", "RED")
-    assert Env.enum("TEST_FOUND", Color) == Color.RED
-
-
-def test_enum_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", " RED ")
-    assert Env.enum("TEST_FOUND", Color) == Color.RED
-
-
-def test_enum_invalid(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INVALID", "bad")
-    with pytest.raises(ValueError):
-        Env.enum("TEST_INVALID", Color)
-
-
-def test_enum_case_insensitive(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_LOWER_CASE", "red")
-    assert Env.enum("TEST_LOWER_CASE", Color, case_sensitive=False) == Color.RED
-    with pytest.raises(ValueError):
-        Env.enum("TEST_LOWER_CASE", Color, case_sensitive=True)
-
-    monkeypatch.setenv("TEST_NOT_FOUND", "purple")
-    with pytest.raises(ValueError):
-        Env.enum("TEST_NOT_FOUND", Color, case_sensitive=False)
-
-
-def test_enum_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_RED", raising=False)
-    assert (
-        Env.enum("TEST_DEFAULT_RED", Color, required=False, default=Color.RED)
-        == Color.RED
+ENV_KEY = "ENV_KEY"
+
+
+class TestStr:
+    def test_found(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        assert Env.str(ENV_KEY) == "a"
+
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.str(ENV_KEY)
+
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.str(ENV_KEY, required=False, default="a") == "a"
+
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.str(ENV_KEY, required=False, default=None) is None
+
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        assert Env.str(ENV_KEY, required=False, default="b") == "a"
+
+    def test_strip_disabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " a ")
+        assert Env.str(ENV_KEY, strip=False) == " a "
+
+    def test_strip_enabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " a ")
+        assert Env.str(ENV_KEY, strip=True) == "a"
+
+    def test_min_length_enforced_after_strip(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " a ")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, strip=True, min_length=2)
+
+    def test_min_length_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        assert Env.str(ENV_KEY, min_length=1) == "a"
+
+    def test_min_length_below_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, min_length=1)
+
+    def test_max_length_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        assert Env.str(ENV_KEY, max_length=1) == "a"
+
+    def test_max_length_above_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "ab")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, max_length=1)
+
+    def test_invalid_range(self) -> None:
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, min_length=2, max_length=1)
+
+    def test_allow_empty_enabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "")
+        assert Env.str(ENV_KEY, allow_empty=True) == ""
+
+    def test_allow_empty_disabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, allow_empty=False)
+
+    def test_allow_empty_when_space_not_stripped(
+        self, monkeypatch: MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv(ENV_KEY, " ")
+        assert Env.str(ENV_KEY, allow_empty=False, strip=False) == " "
+
+    def test_allow_empty_when_stripped_space(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " ")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, allow_empty=False, strip=True)
+
+    def test_allow_empty_invalid_with_min_length_zero(
+        self, monkeypatch: MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, allow_empty=False, min_length=0)
+
+    def test_allow_empty_invalid_with_max_length_zero(
+        self, monkeypatch: MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.str(ENV_KEY, allow_empty=False, max_length=0)
+
+
+class TestInt:
+    def test_found(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.int(ENV_KEY) == 1
+
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.int(ENV_KEY)
+
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.int(ENV_KEY, required=False, default=1) == 1
+
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.int(ENV_KEY, required=False, default=None) is None
+
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.int(ENV_KEY, required=False, default=0) == 1
+
+    def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.int(ENV_KEY)
+
+    def test_strip_whitespace(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " 1 ")
+        assert Env.int(ENV_KEY) == 1
+
+    def test_min_value_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.int(ENV_KEY, min_value=1) == 1
+
+    def test_min_value_below_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "0")
+        with pytest.raises(ValueError):
+            Env.int(ENV_KEY, min_value=1)
+
+    def test_max_value_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.int(ENV_KEY, max_value=1) == 1
+
+    def test_max_value_above_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "2")
+        with pytest.raises(ValueError):
+            Env.int(ENV_KEY, max_value=1)
+
+    def test_invalid_range(self) -> None:
+        with pytest.raises(ValueError):
+            Env.int(ENV_KEY, min_value=2, max_value=1)
+
+
+class TestFloat:
+    def test_found(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        assert Env.float(ENV_KEY) == 1.2
+
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.float(ENV_KEY)
+
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.float(ENV_KEY, required=False, default=1.2) == 1.2
+
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.float(ENV_KEY, required=False, default=None) is None
+
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        assert Env.float(ENV_KEY, required=False, default=1.1) == 1.2
+
+    def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.float(ENV_KEY)
+
+    def test_inf(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "inf")
+        assert Env.float(ENV_KEY) == float("inf")
+
+    def test_negative_inf(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "-inf")
+        assert Env.float(ENV_KEY) == float("-inf")
+
+    def test_nan(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "nan")
+        assert math.isnan(Env.float(ENV_KEY))
+
+    def test_strip_whitespace(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " 1.2 ")
+        assert Env.float(ENV_KEY) == 1.2
+
+    def test_min_value_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        assert Env.float(ENV_KEY, min_value=1.2) == 1.2
+
+    def test_min_value_below_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        with pytest.raises(ValueError):
+            Env.float(ENV_KEY, min_value=1.3)
+
+    def test_max_value_at_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        assert Env.float(ENV_KEY, max_value=1.2) == 1.2
+
+    def test_max_value_above_boundary(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1.2")
+        with pytest.raises(ValueError):
+            Env.float(ENV_KEY, max_value=1.1)
+
+    def test_invalid_range(self) -> None:
+        with pytest.raises(ValueError):
+            Env.float(ENV_KEY, min_value=1.2, max_value=1.1)
+
+
+class TestBool:
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("true", True),
+            ("1", True),
+            ("yes", True),
+            ("on", True),
+            ("false", False),
+            ("0", False),
+            ("no", False),
+            ("off", False),
+        ],
     )
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert Env.enum("TEST_DEFAULT_None", Color, required=False, default=None) is None
+    def test_values(self, monkeypatch: MonkeyPatch, value: str, expected: bool) -> None:
+        monkeypatch.setenv(ENV_KEY, value)
+        assert Env.bool(ENV_KEY) is expected
 
-    monkeypatch.setenv("TEST_DEFAULT_SET", "RED")
-    assert (
-        Env.enum("TEST_DEFAULT_SET", Color, required=False, default=Color.BLUE)
-        == Color.RED
-    )
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.bool(ENV_KEY)
+
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.bool(ENV_KEY, required=False, default=True) is True
+
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.bool(ENV_KEY, required=False, default=None) is None
+
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "false")
+        assert Env.bool(ENV_KEY, required=False, default=True) is False
+
+    def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.bool(ENV_KEY)
+
+    def test_strip_whitespace(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " true ")
+        assert Env.bool(ENV_KEY) is True
+
+    def test_uppercase(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "TRUE")
+        assert Env.bool(ENV_KEY) is True
 
 
-def test_enum_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.enum("TEST_MISSING", Color)
+class ValidEnum(Enum):
+    RED = auto()
+    BLUE = auto()
 
 
-def test_enum_conflict_case_insensitive(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_CONFLICT", "red")
-    with pytest.raises(ValueError):
-        Env.enum("TEST_CONFLICT", ColorConflict, case_sensitive=False)
+class CaseInsensitiveConflictEnum(Enum):
+    RED = auto()
+    red = auto()
 
 
-# literal
+class TestEnum:
+    def test_found(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, ValidEnum.RED.name)
+        assert Env.enum(ENV_KEY, ValidEnum) == ValidEnum.RED
+
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.enum(ENV_KEY, ValidEnum)
+
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert (
+            Env.enum(ENV_KEY, ValidEnum, required=False, default=ValidEnum.RED)
+            == ValidEnum.RED
+        )
+
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.enum(ENV_KEY, ValidEnum, required=False, default=None) is None
+
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, ValidEnum.RED.name)
+        assert (
+            Env.enum(ENV_KEY, ValidEnum, required=False, default=ValidEnum.BLUE)
+            == ValidEnum.RED
+        )
+
+    def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.enum(ENV_KEY, ValidEnum)
+
+    def test_strip_whitespace(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, f" {ValidEnum.RED.name} ")
+        assert Env.enum(ENV_KEY, ValidEnum) == ValidEnum.RED
+
+    def test_case_insensitive_lowercase(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, ValidEnum.RED.name.lower())
+        assert Env.enum(ENV_KEY, ValidEnum, case_sensitive=False) == ValidEnum.RED
+
+    def test_case_sensitive_lowercase(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, ValidEnum.RED.name.lower())
+        with pytest.raises(ValueError):
+            Env.enum(ENV_KEY, ValidEnum, case_sensitive=True)
+
+    def test_case_insensitive_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.enum(ENV_KEY, ValidEnum, case_sensitive=False)
+
+    def test_case_insensitive_conflict(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, ValidEnum.RED.name)
+        with pytest.raises(ValueError):
+            Env.enum(ENV_KEY, CaseInsensitiveConflictEnum, case_sensitive=False)
+
 
 CHOICES = ("1", "2")
 
 
-def test_literal_found(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", "1")
-    assert Env.literal("TEST_FOUND", CHOICES) == "1"
+class TestLiteral:
+    def test_found(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.literal(ENV_KEY, CHOICES) == "1"
 
+    def test_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        with pytest.raises(KeyError):
+            Env.literal(ENV_KEY, CHOICES)
 
-def test_literal_invalid(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_INVALID", "a")
-    with pytest.raises(ValueError):
-        Env.literal("TEST_INVALID", CHOICES)
+    def test_default_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.literal(ENV_KEY, CHOICES, required=False, default="1") == "1"
 
+    def test_default_none_when_missing(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.delenv(ENV_KEY, raising=False)
+        assert Env.literal(ENV_KEY, CHOICES, required=False, default=None) is None
 
-def test_literal_default(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_DEFAULT_1", raising=False)
-    assert Env.literal("TEST_DEFAULT_1", CHOICES, required=False, default="1") == "1"
-    monkeypatch.delenv("TEST_DEFAULT_None", raising=False)
-    assert (
-        Env.literal("TEST_DEFAULT_None", CHOICES, required=False, default=None) is None
-    )
+    def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "1")
+        assert Env.literal(ENV_KEY, CHOICES, required=False, default="0") == "1"
 
-    monkeypatch.setenv("TEST_DEFAULT_SET", "1")
-    assert Env.literal("TEST_DEFAULT_SET", CHOICES, required=False, default="0") == "1"
+    def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.literal(ENV_KEY, CHOICES)
 
+    def test_strip_disabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " 1 ")
+        with pytest.raises(ValueError):
+            Env.literal(ENV_KEY, CHOICES, strip=False)
 
-def test_literal_missing(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.delenv("TEST_MISSING", raising=False)
-    with pytest.raises(KeyError):
-        Env.literal("TEST_MISSING", CHOICES)
+    def test_strip_enabled(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, " 1 ")
+        assert Env.literal(ENV_KEY, CHOICES, strip=True) == "1"
 
-
-def test_literal_strip(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setenv("TEST_FOUND", " 1 ")
-    with pytest.raises(ValueError):
-        Env.literal("TEST_FOUND", CHOICES, strip=False)
-    assert Env.literal("TEST_FOUND", CHOICES, strip=True) == "1"
+    def test_empty_choices(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setenv(ENV_KEY, "a")
+        with pytest.raises(ValueError):
+            Env.literal(ENV_KEY, choices=())

@@ -122,3 +122,4 @@ release:gitlab:
       links:
         - name: "Download Package"
           url: "$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build%3Apackage"
+          link_type: "package"

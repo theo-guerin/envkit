@@ -1,6 +1,5 @@
 # pyright: reportUnusedCallResult=false
 
-import math
 from enum import Enum, auto
 
 import pytest
@@ -184,17 +183,13 @@ class TestFloat:
         with pytest.raises(ValueError):
             Env.float(ENV_KEY)
 
-    def test_inf(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, "inf")
-        assert Env.float(ENV_KEY) == float("inf")
-
-    def test_negative_inf(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, "-inf")
-        assert Env.float(ENV_KEY) == float("-inf")
-
-    def test_nan(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, "nan")
-        assert math.isnan(Env.float(ENV_KEY))
+    @pytest.mark.parametrize("invalid_value", ["nan", "inf", "-inf"])
+    def test_non_finite_invalid(
+        self, monkeypatch: MonkeyPatch, invalid_value: str
+    ) -> None:
+        monkeypatch.setenv(ENV_KEY, invalid_value)
+        with pytest.raises(ValueError):
+            Env.float(ENV_KEY)
 
     def test_strip_whitespace(self, monkeypatch: MonkeyPatch) -> None:
         monkeypatch.setenv(ENV_KEY, " 1.2 ")

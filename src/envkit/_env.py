@@ -204,10 +204,15 @@ class Env:
             raise ValueError("min_value cannot be greater than max_value")
 
         def converter(raw: str) -> float:
+            import math
+
             try:
                 value = float(raw.strip())
             except ValueError as e:
                 raise ValueError(f"{name!r} must be a float") from e
+
+            if not math.isfinite(value):
+                raise ValueError(f"{name!r} must be a finite float")
 
             if min_value is not None and value < min_value:
                 raise ValueError(f"{name!r} must be >= {min_value}")

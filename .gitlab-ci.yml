@@ -90,7 +90,7 @@ build:package:
   artifacts:
     when: on_success
     paths:
-      - dist/
+      - dist/*
   cache:
     policy: pull
 

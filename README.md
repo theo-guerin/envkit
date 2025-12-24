@@ -2,7 +2,8 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/envkit)](https://pypi.org/project/envkit/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/envkit)](https://pypi.org/project/envkit/)
-![PyPI - Types](https://img.shields.io/pypi/types/envkit)
+[![pipeline status](https://gitlab.com/theo-guerin/envkit/badges/main/pipeline.svg)](https://gitlab.com/theo-guerin/envkit/-/commits/main)
+[![coverage report](https://gitlab.com/theo-guerin/envkit/badges/main/coverage.svg)](https://gitlab.com/theo-guerin/envkit/-/commits/main)
 
 A lightweight, strongly‑typed environment variable parser focused on explicit configuration and predictable behavior, inspired by [environs](https://github.com/sloria/environs).
 

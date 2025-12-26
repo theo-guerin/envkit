@@ -69,10 +69,10 @@ check:types-mypy:
         - "**/*.py"
   script:
     - |
-      mypy --output=json . > mypy-out.json
+      uv run mypy --output=json . > mypy-out.json
       MYPY_EXIT_CODE=$?
 
-      mypy-gitlab-code-quality < mypy-out.json > types-mypy-report.json
+      uv run mypy-gitlab-code-quality < mypy-out.json > types-mypy-report.json
 
       exit $MYPY_EXIT_CODE
   artifacts:

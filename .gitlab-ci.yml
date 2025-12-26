@@ -42,7 +42,7 @@ check:lint:
   cache:
     policy: pull
 
-check:types:
+check:types-basedpyright:
   extends: .uv-cache
   stage: check
   rules:
@@ -51,11 +51,34 @@ check:types:
         - uv.lock
         - "**/*.py"
   script:
-    - uv run basedpyright --gitlabcodequality=types-report.json
+    - uv run basedpyright --gitlabcodequality=types-basedpyright-report.json
   artifacts:
     when: always
     reports:
-      codequality: types-report.json
+      codequality: types-basedpyright-report.json
+  cache:
+    policy: pull
+
+check:types-mypy:
+  extends: .uv-cache
+  stage: check
+  rules:
+    - changes:
+        - .gitlab-ci.yml
+        - uv.lock
+        - "**/*.py"
+  script:
+    - |
+      mypy --output=json . > mypy-out.json
+      MYPY_EXIT_CODE=$?
+
+      mypy-gitlab-code-quality < mypy-out.json > types-mypy-report.json
+
+      exit $MYPY_EXIT_CODE
+  artifacts:
+    when: always
+    reports:
+      codequality: types-mypy-report.json
   cache:
     policy: pull
 

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import builtins
 from os import getenv
-from typing import TYPE_CHECKING, final, overload
+from typing import TYPE_CHECKING, cast, final, overload
 
 if TYPE_CHECKING:
     from enum import Enum
@@ -110,7 +111,7 @@ class Env:
     @overload
     @staticmethod
     def int(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: int,
@@ -121,7 +122,7 @@ class Env:
     @overload
     @staticmethod
     def int(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: None = None,
@@ -132,7 +133,7 @@ class Env:
     @overload
     @staticmethod
     def int(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[True] = True,
         default: None = None,
@@ -142,7 +143,7 @@ class Env:
 
     @staticmethod
     def int(
-        name: str,
+        name: builtins.str,
         *,
         required: bool = True,
         default: int | None = None,
@@ -173,7 +174,7 @@ class Env:
     @overload
     @staticmethod
     def float(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: float,
@@ -184,7 +185,7 @@ class Env:
     @overload
     @staticmethod
     def float(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: None = None,
@@ -195,7 +196,7 @@ class Env:
     @overload
     @staticmethod
     def float(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[True] = True,
         default: None = None,
@@ -205,7 +206,7 @@ class Env:
 
     @staticmethod
     def float(
-        name: str,
+        name: builtins.str,
         *,
         required: bool = True,
         default: float | None = None,
@@ -241,7 +242,7 @@ class Env:
     @overload
     @staticmethod
     def bool(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: bool,
@@ -250,7 +251,7 @@ class Env:
     @overload
     @staticmethod
     def bool(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: None = None,
@@ -259,7 +260,7 @@ class Env:
     @overload
     @staticmethod
     def bool(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[True] = True,
         default: None = None,
@@ -267,7 +268,7 @@ class Env:
 
     @staticmethod
     def bool(
-        name: str,
+        name: builtins.str,
         *,
         required: bool = True,
         default: bool | None = None,
@@ -293,44 +294,44 @@ class Env:
     @overload
     @staticmethod
     def enum[E: Enum](
-        name: str,
+        name: builtins.str,
         enum: type[E],
         *,
         required: Literal[False],
         default: E,
-        case_sensitive: bool = True,
+        case_sensitive: builtins.bool = True,
     ) -> E: ...
 
     @overload
     @staticmethod
     def enum[E: Enum](
-        name: str,
+        name: builtins.str,
         enum: type[E],
         *,
         required: Literal[False],
         default: None = None,
-        case_sensitive: bool = True,
+        case_sensitive: builtins.bool = True,
     ) -> E | None: ...
 
     @overload
     @staticmethod
     def enum[E: Enum](
-        name: str,
+        name: builtins.str,
         enum: type[E],
         *,
         required: Literal[True] = True,
         default: None = None,
-        case_sensitive: bool = True,
+        case_sensitive: builtins.bool = True,
     ) -> E: ...
 
     @staticmethod
     def enum[E: Enum](
-        name: str,
+        name: builtins.str,
         enum: type[E],
         *,
-        required: bool = True,
+        required: builtins.bool = True,
         default: E | None = None,
-        case_sensitive: bool = True,
+        case_sensitive: builtins.bool = True,
     ) -> E | None:
         """
         Retrieve an environment variable and convert it to an Enum member by name.
@@ -362,44 +363,44 @@ class Env:
     @overload
     @staticmethod
     def literal[L: LiteralString](
-        name: str,
+        name: builtins.str,
         choices: tuple[L, ...],
         *,
         required: Literal[False],
         default: L,
-        strip: bool = True,
+        strip: builtins.bool = True,
     ) -> L: ...
 
     @overload
     @staticmethod
     def literal[L: LiteralString](
-        name: str,
+        name: builtins.str,
         choices: tuple[L, ...],
         *,
         required: Literal[False],
         default: None = None,
-        strip: bool = True,
+        strip: builtins.bool = True,
     ) -> L | None: ...
 
     @overload
     @staticmethod
     def literal[L: LiteralString](
-        name: str,
+        name: builtins.str,
         choices: tuple[L, ...],
         *,
         required: Literal[True] = True,
         default: None = None,
-        strip: bool = True,
+        strip: builtins.bool = True,
     ) -> L: ...
 
     @staticmethod
     def literal[L: LiteralString](
-        name: str,
+        name: builtins.str,
         choices: tuple[L, ...],
         *,
-        required: bool = True,
+        required: builtins.bool = True,
         default: L | None = None,
-        strip: bool = True,
+        strip: builtins.bool = True,
     ) -> L | None:
         """
         Retrieve an environment variable and ensure it matches one of the provided
@@ -411,6 +412,6 @@ class Env:
                 value = value.strip()
             if value not in choices:
                 raise ValueError(f"{name!r} must be one of {choices!r}")
-            return value
+            return cast(L, value)
 
         return _get(name, required, default, converter)

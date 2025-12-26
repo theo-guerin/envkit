@@ -405,7 +405,13 @@ class Env:
         """
         Retrieve an environment variable and ensure it matches one of the provided
         literal choices.
+
+        If a default value is provided, it must be one of the allowed choices;
+        otherwise, a ValueError is raised at definition time.
         """
+
+        if default is not None and default not in choices:
+            raise ValueError(f"default {default!r} must be one of {choices!r}")
 
         def converter(value: str) -> L:
             if strip:

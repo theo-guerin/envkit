@@ -357,7 +357,7 @@ class TestLiteral:
 
     def test_default_ignored_when_present(self, monkeypatch: MonkeyPatch) -> None:
         monkeypatch.setenv(ENV_KEY, "1")
-        assert Env.literal(ENV_KEY, CHOICES, required=False, default="0") == "1"
+        assert Env.literal(ENV_KEY, CHOICES, required=False, default="2") == "1"
 
     def test_invalid(self, monkeypatch: MonkeyPatch) -> None:
         monkeypatch.setenv(ENV_KEY, "a")
@@ -377,3 +377,7 @@ class TestLiteral:
         monkeypatch.setenv(ENV_KEY, "a")
         with pytest.raises(ValueError):
             Env.literal(ENV_KEY, choices=())
+
+    def test_default_not_in_choices(self) -> None:
+        with pytest.raises(ValueError):
+            Env.literal(ENV_KEY, choices=(), required=False, default="a")

@@ -30,49 +30,49 @@ class Env:
     @overload
     @staticmethod
     def str(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
-        default: str,
-        strip: bool = False,
-        min_length: int | None = None,
-        max_length: int | None = None,
-    ) -> str: ...
+        default: builtins.str,
+        strip: builtins.bool = False,
+        min_length: builtins.int | None = None,
+        max_length: builtins.int | None = None,
+    ) -> builtins.str: ...
 
     @overload
     @staticmethod
     def str(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[False],
         default: None = None,
-        strip: bool = False,
-        min_length: int | None = None,
-        max_length: int | None = None,
-    ) -> str | None: ...
+        strip: builtins.bool = False,
+        min_length: builtins.int | None = None,
+        max_length: builtins.int | None = None,
+    ) -> builtins.str | None: ...
 
     @overload
     @staticmethod
     def str(
-        name: str,
+        name: builtins.str,
         *,
         required: Literal[True] = True,
         default: None = None,
-        strip: bool = False,
-        min_length: int | None = None,
-        max_length: int | None = None,
-    ) -> str: ...
+        strip: builtins.bool = False,
+        min_length: builtins.int | None = None,
+        max_length: builtins.int | None = None,
+    ) -> builtins.str: ...
 
     @staticmethod
     def str(
-        name: str,
+        name: builtins.str,
         *,
-        required: bool = True,
-        default: str | None = None,
-        strip: bool = False,
-        min_length: int | None = None,
-        max_length: int | None = None,
-    ) -> str | None:
+        required: builtins.bool = True,
+        default: builtins.str | None = None,
+        strip: builtins.bool = False,
+        min_length: builtins.int | None = None,
+        max_length: builtins.int | None = None,
+    ) -> builtins.str | None:
         """
         Retrieve an environment variable as a string with optional validation.
         """
@@ -102,10 +102,10 @@ class Env:
         name: builtins.str,
         *,
         required: Literal[False],
-        default: int,
-        min_value: int | None = None,
-        max_value: int | None = None,
-    ) -> int: ...
+        default: builtins.int,
+        min_value: builtins.int | None = None,
+        max_value: builtins.int | None = None,
+    ) -> builtins.int: ...
 
     @overload
     @staticmethod
@@ -114,9 +114,9 @@ class Env:
         *,
         required: Literal[False],
         default: None = None,
-        min_value: int | None = None,
-        max_value: int | None = None,
-    ) -> int | None: ...
+        min_value: builtins.int | None = None,
+        max_value: builtins.int | None = None,
+    ) -> builtins.int | None: ...
 
     @overload
     @staticmethod
@@ -125,19 +125,19 @@ class Env:
         *,
         required: Literal[True] = True,
         default: None = None,
-        min_value: int | None = None,
-        max_value: int | None = None,
-    ) -> int: ...
+        min_value: builtins.int | None = None,
+        max_value: builtins.int | None = None,
+    ) -> builtins.int: ...
 
     @staticmethod
     def int(
         name: builtins.str,
         *,
-        required: bool = True,
-        default: int | None = None,
-        min_value: int | None = None,
-        max_value: int | None = None,
-    ) -> int | None:
+        required: builtins.bool = True,
+        default: builtins.int | None = None,
+        min_value: builtins.int | None = None,
+        max_value: builtins.int | None = None,
+    ) -> builtins.int | None:
         """
         Retrieve an environment variable as an integer with optional range validation.
         """
@@ -165,10 +165,10 @@ class Env:
         name: builtins.str,
         *,
         required: Literal[False],
-        default: float,
-        min_value: float | None = None,
-        max_value: float | None = None,
-    ) -> float: ...
+        default: builtins.float,
+        min_value: builtins.float | None = None,
+        max_value: builtins.float | None = None,
+    ) -> builtins.float: ...
 
     @overload
     @staticmethod
@@ -177,9 +177,9 @@ class Env:
         *,
         required: Literal[False],
         default: None = None,
-        min_value: float | None = None,
-        max_value: float | None = None,
-    ) -> float | None: ...
+        min_value: builtins.float | None = None,
+        max_value: builtins.float | None = None,
+    ) -> builtins.float | None: ...
 
     @overload
     @staticmethod
@@ -188,19 +188,19 @@ class Env:
         *,
         required: Literal[True] = True,
         default: None = None,
-        min_value: float | None = None,
-        max_value: float | None = None,
-    ) -> float: ...
+        min_value: builtins.float | None = None,
+        max_value: builtins.float | None = None,
+    ) -> builtins.float: ...
 
     @staticmethod
     def float(
         name: builtins.str,
         *,
-        required: bool = True,
-        default: float | None = None,
-        min_value: float | None = None,
-        max_value: float | None = None,
-    ) -> float | None:
+        required: builtins.bool = True,
+        default: builtins.float | None = None,
+        min_value: builtins.float | None = None,
+        max_value: builtins.float | None = None,
+    ) -> builtins.float | None:
         """
         Retrieve an environment variable as a float with optional range validation.
         """
@@ -233,8 +233,8 @@ class Env:
         name: builtins.str,
         *,
         required: Literal[False],
-        default: bool,
-    ) -> bool: ...
+        default: builtins.bool,
+    ) -> builtins.bool: ...
 
     @overload
     @staticmethod
@@ -243,7 +243,7 @@ class Env:
         *,
         required: Literal[False],
         default: None = None,
-    ) -> bool | None: ...
+    ) -> builtins.bool | None: ...
 
     @overload
     @staticmethod
@@ -252,15 +252,15 @@ class Env:
         *,
         required: Literal[True] = True,
         default: None = None,
-    ) -> bool: ...
+    ) -> builtins.bool: ...
 
     @staticmethod
     def bool(
         name: builtins.str,
         *,
-        required: bool = True,
-        default: bool | None = None,
-    ) -> bool | None:
+        required: builtins.bool = True,
+        default: builtins.bool | None = None,
+    ) -> builtins.bool | None:
         """
         Retrieve an environment variable as a boolean.
 

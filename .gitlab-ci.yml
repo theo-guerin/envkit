@@ -42,23 +42,6 @@ check:lint:
   cache:
     policy: pull
 
-check:types-basedpyright:
-  extends: .uv-cache
-  stage: check
-  rules:
-    - changes:
-        - .gitlab-ci.yml
-        - uv.lock
-        - "**/*.py"
-  script:
-    - uv run basedpyright --gitlabcodequality=types-basedpyright-report.json
-  artifacts:
-    when: always
-    reports:
-      codequality: types-basedpyright-report.json
-  cache:
-    policy: pull
-
 check:types-mypy:
   extends: .uv-cache
   stage: check
@@ -79,6 +62,40 @@ check:types-mypy:
     when: always
     reports:
       codequality: types-mypy-report.json
+  cache:
+    policy: pull
+
+check:types-basedpyright:
+  extends: .uv-cache
+  stage: check
+  rules:
+    - changes:
+        - .gitlab-ci.yml
+        - uv.lock
+        - "**/*.py"
+  script:
+    - uv run basedpyright --gitlabcodequality=types-basedpyright-report.json
+  artifacts:
+    when: always
+    reports:
+      codequality: types-basedpyright-report.json
+  cache:
+    policy: pull
+
+check:types-ty:
+  extends: .uv-cache
+  stage: check
+  rules:
+    - changes:
+        - .gitlab-ci.yml
+        - uv.lock
+        - "**/*.py"
+  script:
+    - uv run ty check --output-format gitlab > types-ty-report.json
+  artifacts:
+    when: always
+    reports:
+      codequality: types-ty-report.json
   cache:
     policy: pull
 

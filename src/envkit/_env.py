@@ -35,7 +35,6 @@ class Env:
         required: Literal[False],
         default: str,
         strip: bool = False,
-        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -48,7 +47,6 @@ class Env:
         required: Literal[False],
         default: None = None,
         strip: bool = False,
-        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None: ...
@@ -61,7 +59,6 @@ class Env:
         required: Literal[True] = True,
         default: None = None,
         strip: bool = False,
-        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str: ...
@@ -73,7 +70,6 @@ class Env:
         required: bool = True,
         default: str | None = None,
         strip: bool = False,
-        allow_empty: bool = True,
         min_length: int | None = None,
         max_length: int | None = None,
     ) -> str | None:
@@ -88,17 +84,9 @@ class Env:
         ):
             raise ValueError("min_length cannot be greater than max_length")
 
-        if not allow_empty and (min_length is not None and min_length == 0):
-            raise ValueError("allow_empty cannot be False when min_length is 0")
-        if not allow_empty and (max_length is not None and max_length == 0):
-            raise ValueError("allow_empty cannot be False when max_length is 0")
-
         def converter(value: str) -> str:
             if strip:
                 value = value.strip()
-
-            if not allow_empty and value == "":
-                raise ValueError(f"{name!r} cannot be empty")
 
             if min_length is not None and len(value) < min_length:
                 raise ValueError(f"{name!r} must be at least {min_length} chars")

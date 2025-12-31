@@ -67,40 +67,6 @@ class TestStr:
         with pytest.raises(ValueError):
             Env.str(ENV_KEY, min_length=2, max_length=1)
 
-    def test_allow_empty_enabled(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, "")
-        assert Env.str(ENV_KEY, allow_empty=True) == ""
-
-    def test_allow_empty_disabled(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, "")
-        with pytest.raises(ValueError):
-            Env.str(ENV_KEY, allow_empty=False)
-
-    def test_allow_empty_when_space_not_stripped(
-        self, monkeypatch: MonkeyPatch
-    ) -> None:
-        monkeypatch.setenv(ENV_KEY, " ")
-        assert Env.str(ENV_KEY, allow_empty=False, strip=False) == " "
-
-    def test_allow_empty_when_stripped_space(self, monkeypatch: MonkeyPatch) -> None:
-        monkeypatch.setenv(ENV_KEY, " ")
-        with pytest.raises(ValueError):
-            Env.str(ENV_KEY, allow_empty=False, strip=True)
-
-    def test_allow_empty_invalid_with_min_length_zero(
-        self, monkeypatch: MonkeyPatch
-    ) -> None:
-        monkeypatch.setenv(ENV_KEY, "a")
-        with pytest.raises(ValueError):
-            Env.str(ENV_KEY, allow_empty=False, min_length=0)
-
-    def test_allow_empty_invalid_with_max_length_zero(
-        self, monkeypatch: MonkeyPatch
-    ) -> None:
-        monkeypatch.setenv(ENV_KEY, "a")
-        with pytest.raises(ValueError):
-            Env.str(ENV_KEY, allow_empty=False, max_length=0)
-
 
 class TestInt:
     def test_found(self, monkeypatch: MonkeyPatch) -> None:

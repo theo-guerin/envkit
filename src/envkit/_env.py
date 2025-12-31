@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import builtins
 from os import getenv
 from typing import TYPE_CHECKING, cast, final, overload
 
 if TYPE_CHECKING:
+    import builtins
     from enum import Enum
     from typing import Callable, Literal, LiteralString
 

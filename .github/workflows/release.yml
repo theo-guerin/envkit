@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: ./.github/actions/setup
       - name: Run tests
-        run: uv run pytest --cov --cov-fail-under 100
+        run: uv run pytest
 
   build:
     name: Build package

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from os import getenv
 from typing import TYPE_CHECKING, final, overload
 
@@ -210,8 +211,6 @@ class Env:
             raise ValueError("min_value cannot be greater than max_value")
 
         def converter(raw: str) -> float:
-            import math
-
             try:
                 value = float(raw.strip())
             except ValueError as e:

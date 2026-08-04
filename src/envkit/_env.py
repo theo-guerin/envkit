@@ -332,20 +332,21 @@ class Env:
                 insensitive_keys = {k.casefold(): k for k in enum.__members__}
                 if len(insensitive_keys) < len(enum):
                     raise ValueError(
-                        "Enum contains conflicting keys when case-insensitivity is applied"
+                        "Enum contains conflicting keys when "
+                        + "case-insensitivity is applied"
                     )
 
                 try:
                     key = insensitive_keys[key.casefold()]
                 except KeyError:
                     valid = list(enum.__members__.keys())
-                    raise ValueError(f"{name!r} must be one of {valid!r}")
+                    raise ValueError(f"{name!r} must be one of {valid!r}") from None
 
             try:
                 return enum[key]
             except KeyError:
                 valid = list(enum.__members__.keys())
-                raise ValueError(f"{name!r} must be one of {valid!r}")
+                raise ValueError(f"{name!r} must be one of {valid!r}") from None
 
         return _get(name, required, default, converter)
 

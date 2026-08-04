@@ -83,6 +83,7 @@ jobs:
           name: dist
           path: dist
           retention-days: 7
+          if-no-files-found: error
 
   publish:
     name: Publish to PyPI

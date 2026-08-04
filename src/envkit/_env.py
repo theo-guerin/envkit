@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from os import getenv
-from typing import TYPE_CHECKING, cast, final, overload
+from typing import TYPE_CHECKING, final, overload
 
 if TYPE_CHECKING:
     import builtins
+    from collections.abc import Callable
     from enum import Enum
-    from typing import Callable, Literal, LiteralString
+    from typing import Literal, LiteralString
 
 
 def _get[T](
@@ -406,6 +407,6 @@ class Env:
                 value = value.strip()
             if value not in choices:
                 raise ValueError(f"{name!r} must be one of {choices!r}")
-            return cast(L, value)
+            return value  # ty: ignore[invalid-return-type]
 
         return _get(name, required, default, converter)

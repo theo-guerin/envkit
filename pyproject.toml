@@ -1,6 +1,6 @@
 [project]
 name = "envkit"
-version = "v0.7.0.post1"
+version = "0.7.0.post1"
 description = "A lightweight, strongly-typed environment variable parser focused on explicit configuration and predictable behavior, inspired by environs."
 authors = [{ name = "Théo Guérin", email = "contact@theo-guerin.dev" }]
 license = "MIT"

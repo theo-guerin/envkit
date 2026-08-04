@@ -28,13 +28,16 @@ Issues = "https://codeberg.org/theo-guerin/envkit/issues"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.9",
-    "basedpyright>=1.36.1",
-    "pytest>=9.0.2",
-    "pytest-cov>=7.0.0",
-    "mypy>=1.19.1",
-    "ty>=0.0.8",
+  "ruff>=0.14.9",
+  "basedpyright>=1.36.1",
+  "pytest>=9.0.2",
+  "pytest-cov>=7.0.0",
+  "mypy>=1.19.1",
+  "ty>=0.0.8",
 ]
+
+[tool.uv]
+exclude-newer = "7 days"
 
 [build-system]
 requires = ["uv_build>=0.9.17,<0.10.0"]

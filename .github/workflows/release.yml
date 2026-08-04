@@ -14,6 +14,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run ruff
         run: uv run ruff check
@@ -22,6 +23,7 @@ jobs:
     name: Type check (mypy)
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run mypy
         run: uv run mypy .
@@ -30,6 +32,7 @@ jobs:
     name: Type check (basedpyright)
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run basedpyright
         run: uv run basedpyright
@@ -38,6 +41,7 @@ jobs:
     name: Type check (ty)
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run ty
         run: uv run ty check
@@ -46,6 +50,7 @@ jobs:
     name: Type check (pyrefly)
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run pyrefly
         run: uv run pyrefly check
@@ -60,6 +65,7 @@ jobs:
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     steps:
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Run tests
         run: uv run pytest

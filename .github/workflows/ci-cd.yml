@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +25,7 @@ jobs:
         run: uv run ruff check
 
   types-mypy:
+    name: Type check (mypy)
     runs-on: ubuntu-latest
 
     steps:
@@ -39,6 +41,7 @@ jobs:
         run: uv run mypy .
 
   types-basedpyright:
+    name: Type check (basedpyright)
     runs-on: ubuntu-latest
 
     steps:
@@ -54,6 +57,7 @@ jobs:
         run: uv run basedpyright
 
   types-ty:
+    name: Type check (ty)
     runs-on: ubuntu-latest
 
     steps:
@@ -69,6 +73,7 @@ jobs:
         run: uv run ty check
 
   types-pyrefly:
+    name: Type check (pyrefly)
     runs-on: ubuntu-latest
 
     steps:
@@ -88,6 +93,8 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
+
+    name: Test (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     env:
       UV_PYTHON: ${{ matrix.python-version }}
@@ -105,6 +112,7 @@ jobs:
         run: uv run pytest --cov --cov-fail-under 100
 
   build:
+    name: Build package
     needs: [lint, types-mypy, types-basedpyright, types-ty, types-pyrefly, tests]
     runs-on: ubuntu-latest
 
@@ -125,6 +133,7 @@ jobs:
           retention-days: 7
 
   publish:
+    name: Publish to PyPI
     needs: [build]
     runs-on: ubuntu-latest
 
@@ -144,6 +153,7 @@ jobs:
         run: uv publish --trusted-publishing always
 
   release:
+    name: Create GitHub Release
     needs: [build]
     runs-on: ubuntu-latest
     permissions:

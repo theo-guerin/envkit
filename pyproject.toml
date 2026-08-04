@@ -34,6 +34,7 @@ dev = [
   "pytest-cov>=7.0.0",
   "mypy>=1.19.1",
   "ty>=0.0.8",
+  "pyrefly>=1.1.1",
 ]
 
 [tool.uv]
@@ -52,3 +53,7 @@ typeCheckingMode = "all"
 [tool.mypy]
 strict = true
 exclude = '\.venv'
+
+[tool.pyrefly]
+project-includes = ["src/**/*.py"]
+preset = "strict"

@@ -16,3 +16,5 @@ wheels/
 
 # Test coverage reports
 .coverage
+
+.mypy_cache/

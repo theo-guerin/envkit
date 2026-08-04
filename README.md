@@ -5,8 +5,6 @@
 
 A lightweight, strongly‑typed environment variable parser focused on explicit configuration and predictable behavior, inspired by [environs](https://github.com/sloria/environs).
 
-*This project is in an early development stage. Expect breaking changes and incomplete features.*
-
 ## Installation
 
 ```bash
@@ -30,18 +28,3 @@ debug = Env.bool("DEBUG", required=False, default=False)
 # Enum parsing
 log_level = Env.enum("LOG_LEVEL", enum=LogLevel, required=False, default=LogLevel.INFO)
 ```
-
-## Contributing
-
-Contributions are welcome!
-Whether you want to report an issue, suggest an improvement, or submit a pull
-request, your help is appreciated.
-
-If you're new to open source, feel free to participate as well — the project is
-open to contributors of all experience levels.
-
-- Open an issue for bugs, ideas, or questions
-- Submit a pull request with changes or enhancements
-- Documentation and test improvements are also valuable
-
-Everyone is welcome to contribute.

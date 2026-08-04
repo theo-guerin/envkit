@@ -1,8 +1,7 @@
 name: CI/CD
-
 on:
   push:
-    tags: "v*"
+    tags: ["v*"]
 
 permissions:
   contents: read
@@ -11,120 +10,97 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run ruff
         run: uv run ruff check
 
   types-mypy:
     name: Type check (mypy)
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run mypy
         run: uv run mypy .
 
   types-basedpyright:
     name: Type check (basedpyright)
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run basedpyright
         run: uv run basedpyright
 
   types-ty:
     name: Type check (ty)
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run ty
         run: uv run ty check
 
   types-pyrefly:
     name: Type check (pyrefly)
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run pyrefly
         run: uv run pyrefly check
 
   tests:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12", "3.13", "3.14"]
-
-    name: Test (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
     env:
       UV_PYTHON: ${{ matrix.python-version }}
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Install dependencies
         run: uv sync --locked --dev
-
       - name: Run tests
         run: uv run pytest --cov --cov-fail-under 100
 
   build:
     name: Build package
-    needs: [lint, types-mypy, types-basedpyright, types-ty, types-pyrefly, tests]
+    needs:
+      - lint
+      - types-mypy
+      - types-basedpyright
+      - types-ty
+      - types-pyrefly
+      - tests
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Build package
         run: uv build
-
       - name: Upload dist artifact
         uses: actions/upload-artifact@v7
         with:
@@ -134,41 +110,37 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: [build]
+    needs:
+      - build
     runs-on: ubuntu-latest
     permissions:
       id-token: write
     environment: release
-
     steps:
       - uses: actions/checkout@v7
-
       - name: Set up uv
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
-
       - name: Download dist artifact
         uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
-
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always
 
   release:
     name: Create GitHub Release
-    needs: [build]
+    needs:
+      - build
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Download dist artifact
         uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:

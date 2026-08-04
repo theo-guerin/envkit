@@ -1,0 +1,14 @@
+name: Setup
+description: Check out the repository and install locked dev dependencies with uv
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+
+    - name: Install dependencies
+      run: uv sync --locked
+      shell: bash
